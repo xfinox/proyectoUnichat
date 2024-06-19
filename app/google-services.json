@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "545141123242",
+    "firebase_url": "https://unichatfb-default-rtdb.firebaseio.com",
+    "project_id": "unichatfb",
+    "storage_bucket": "unichatfb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545141123242:android:6703ce1a671480e9f848d3",
+        "android_client_info": {
+          "package_name": "com.jose.appchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "545141123242-j2funtuc7nk8942r4s2415ab5r4vuk7f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsePS0CiqxobLsmYC8__tEw7N-IXorPrc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545141123242-j2funtuc7nk8942r4s2415ab5r4vuk7f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545141123242:android:493785d99e343058f848d3",
+        "android_client_info": {
+          "package_name": "com.jose.appunichat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "545141123242-j2funtuc7nk8942r4s2415ab5r4vuk7f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsePS0CiqxobLsmYC8__tEw7N-IXorPrc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "545141123242-j2funtuc7nk8942r4s2415ab5r4vuk7f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
