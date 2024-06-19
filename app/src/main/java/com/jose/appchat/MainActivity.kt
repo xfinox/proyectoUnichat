@@ -1,5 +1,6 @@
 package com.jose.appchat
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -8,6 +9,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.jose.appchat.databinding.ActivityMainBinding
+import com.jose.appchat.ui.Chats.ChatsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,6 +39,20 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Manejar el Intent cuando la actividad ya está en ejecución
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        if (intent.hasExtra("showChatsFragment")) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_main, ChatsFragment())
+                .commit()
+        }
     }
 
 }

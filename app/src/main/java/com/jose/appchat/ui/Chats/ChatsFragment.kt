@@ -1,7 +1,10 @@
 package com.jose.appchat.ui.Chats
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +26,7 @@ class ChatsFragment : Fragment() {
     private lateinit var chatsAdapter: ChatsAdapter
     private val chatDataList = mutableListOf<ListaChatsAdapter.ChatData>()
     private val TAG = "ChatsFragment"
+    private lateinit var newChatReceiver: BroadcastReceiver
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,8 +48,18 @@ class ChatsFragment : Fragment() {
         chatsAdapter = ChatsAdapter(chatDataList)
         recyclerView.adapter = chatsAdapter
 
-        // Cargar los chats del usuario
-        loadUserChats()
+        // Cargar los chats del usuario solo si la lista está vacía
+        if (chatDataList.isEmpty()) {
+            loadUserChats()
+        }
+
+        // Inicializar y registrar el BroadcastReceiver
+        newChatReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                loadUserChats()
+            }
+        }
+        requireContext().registerReceiver(newChatReceiver, IntentFilter("com.jose.appchat.NEW_CHAT_CREATED"))
 
         return view
     }
@@ -68,5 +82,10 @@ class ChatsFragment : Fragment() {
             this.chatDataList.addAll(chatDataList)
             chatsAdapter.notifyDataSetChanged()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireContext().unregisterReceiver(newChatReceiver)
     }
 }

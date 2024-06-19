@@ -19,6 +19,7 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
     RecyclerView.Adapter<ChatsAdapter.ChatViewHolder>() {
 
     private val TAG = "ChatsAdapter"
+    private val contactNameCache = mutableMapOf<String, String?>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chat, parent, false)
@@ -33,21 +34,37 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
         val participantId = if (chatData.userId1 == FirebaseAuth.getInstance().currentUser?.uid) chatData.userId2 else chatData.userId1
         Log.d(TAG, "ParticipantId: $participantId")
 
-        // Usar la función getContactNameAndEmail para obtener el nombre y el email del contacto
-        getContactNameAndEmail(participantId) { userName, userEmail ->
-            holder.contactNameTextView.text = userName
-            Log.d(TAG, "ParticipantId: $participantId, UserName: $userName, UserEmail: $userEmail")
+        // Verificar si el nombre del contacto ya está en la caché
+        val cachedName = contactNameCache[participantId]
+        if (cachedName != null) {
+            holder.contactNameTextView.text = cachedName
+            Log.d(TAG, "Using cached name for ParticipantId: $participantId, UserName: $cachedName")
 
             holder.itemView.setOnClickListener {
                 val intent = Intent(holder.itemView.context, ChatLogActivity::class.java).apply {
                     putExtra("chatId", chatData.chatId)
                     putExtra("userIdSender", chatData.userId1)
                     putExtra("userIdReceiver", chatData.userId2)
-                    putExtra("userName", userName ?: "Desconocido") // Pasar "Desconocido" si userName es null
-                    putExtra("userEmail", userEmail ?: "Desconocido") // Pasar "Desconocido" si userEmail es null
+                    putExtra("userName", cachedName ?: "Desconocido") // Pasar "Desconocido" si userName es null
                 }
-                Log.d(TAG, "Nombre del usuario: $userName")
                 holder.itemView.context.startActivity(intent)
+            }
+        } else {
+            // Usar la función getContactDetails para obtener el nombre y el email del contacto
+            getContactDetails(participantId) { userName ->
+                holder.contactNameTextView.text = userName
+                contactNameCache[participantId] = userName // Almacenar en la caché
+                Log.d(TAG, "ParticipantId: $participantId, UserName: $userName")
+
+                holder.itemView.setOnClickListener {
+                    val intent = Intent(holder.itemView.context, ChatLogActivity::class.java).apply {
+                        putExtra("chatId", chatData.chatId)
+                        putExtra("userIdSender", chatData.userId1)
+                        putExtra("userIdReceiver", chatData.userId2)
+                        putExtra("userName", userName ?: "Desconocido") // Pasar "Desconocido" si userName es null
+                    }
+                    holder.itemView.context.startActivity(intent)
+                }
             }
         }
     }
@@ -64,8 +81,8 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
         }
     }
 
-    // Función para obtener el nombre y el email del contacto
-    private fun getContactNameAndEmail(userId: String, callback: (String?, String?) -> Unit) {
+    // Función para obtener el nombre del contacto
+    private fun getContactDetails(userId: String, callback: (String?) -> Unit) {
         // Obtener el userId del usuario actual
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
@@ -75,41 +92,38 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
         contactsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var userName: String? = null
-                var userEmail: String? = null
                 for (contactSnapshot in snapshot.children) {
                     val contactUserId = contactSnapshot.child("userId").getValue(String::class.java)
-                    Log.d(TAG, "Id del : $userId")
                     if (contactUserId == userId) {
                         userName = contactSnapshot.child("nombre").getValue(String::class.java)
                         break
                     }
                 }
-                getEmailFromUserNode(userId) { email ->
-                    userEmail = email
-                    callback(userName, userEmail)
+                if (userName == null) {
+                    getUserDetails(userId) { name ->
+                        callback(name)
+                    }
+                } else {
+                    callback(userName)
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Manejar error de base de datos si es necesario
                 Log.e(TAG, "Error al obtener datos de usuario: ${error.message}")
             }
         })
     }
 
-    private fun getEmailFromUserNode(userId: String, callback: (String?) -> Unit) {
+    private fun getUserDetails(userId: String, callback: (String?) -> Unit) {
         val userRef = FirebaseDatabase.getInstance().reference.child("users").child(userId)
-
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val email = snapshot.child("email").getValue(String::class.java)
-                callback(email)
+                val userName = snapshot.child("nombre").getValue(String::class.java)
+                callback(userName)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Manejar error de base de datos si es necesario
-                Log.e(TAG, "Error al obtener el email del usuario: ${error.message}")
-                callback(null)
+                Log.e(TAG, "Error al obtener datos de usuario: ${error.message}")
             }
         })
     }

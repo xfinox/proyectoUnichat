@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.jose.appchat"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 34 //34
         versionCode = 1
         versionName = "1.0"
 
@@ -79,6 +79,11 @@ dependencies {
     // Imágenes con Glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
+
+
+    implementation ("androidx.viewpager2:viewpager2:1.1.0")
+
+
 }
 
 

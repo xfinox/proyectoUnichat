@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.jose.appchat.AddActivity
+import com.jose.appchat.MainActivity
 import com.jose.appchat.R
 import com.jose.appchat.recyclerview.item.ChatMessageAdapter
 
@@ -97,6 +98,8 @@ class ChatLogActivity : AppCompatActivity() {
         checkAndUpdateContactProfilePicture(userIdReceiver)
     }
 
+
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_chat_log, menu)
         return true
@@ -104,6 +107,13 @@ class ChatLogActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                navigateToChatsFragment()
+                true
+
+            //finish() // Finaliza la actividad actual y vuelve a la anterior
+                //true
+            }
             R.id.action_add_contact -> {
                 openAddContactActivity(userIdReceiver, userNombre, userEmail)
                 true
@@ -111,6 +121,22 @@ class ChatLogActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    private fun navigateToChatsFragment() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+    }
+
+    private fun openAddContactActivity(userId: String, userName: String, userEmail: String) {
+        val intent = Intent(this, AddActivity::class.java).apply {
+            putExtra("userId", userId)
+            putExtra("userName", userName)
+            putExtra("userEmail", userEmail)
+        }
+        startActivity(intent)
+    }
+
 
     private fun setupRecyclerView() {
         messageAdapter = ChatMessageAdapter(chatId, currentUserId, userIdReceiver)
@@ -161,13 +187,13 @@ class ChatLogActivity : AppCompatActivity() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Log.e(TAG, "Error al obtener los datos del contacto: ${error.message}")
+                        // Manejar error de base de datos si es necesario
                     }
                 })
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e(TAG, "Error al obtener los datos del usuario: ${error.message}")
+                // Manejar error de base de datos si es necesario
             }
         })
     }
@@ -187,12 +213,17 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    private fun openAddContactActivity(userId: String, userName: String, userEmail: String) {
-        val intent = Intent(this, AddActivity::class.java).apply {
-            putExtra("userId", userId)
-            putExtra("userName", userName)
-            putExtra("userEmail", userEmail)
+    private fun openChatLog(contactUserId: String, contactUserName: String) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val chatId = if (currentUserId < contactUserId) "$currentUserId-$contactUserId" else "$contactUserId-$currentUserId"
+
+        val intent = Intent(this, ChatLogActivity::class.java).apply {
+            putExtra("chatId", chatId)
+            putExtra("userIdReceiver", contactUserId)
+            putExtra("userIdSender", currentUserId)
+            putExtra("userName", contactUserName) // Pasar el nombre del usuario al ChatLogActivity
         }
         startActivity(intent)
     }
+
 }

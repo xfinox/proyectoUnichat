@@ -1,5 +1,6 @@
 package com.jose.appchat
 
+import ContactAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +17,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.jose.appchat.model.Contact
-import com.jose.appchat.recyclerview.item.ContactAdapter
 import com.jose.appchat.ui.Chats.ChatLogActivity
 
 class AddActivity : AppCompatActivity() {
@@ -39,7 +39,7 @@ class AddActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         contactList = mutableListOf()
         contactAdapter = ContactAdapter(contactList) { contact ->
-            openChatLog(contact.userId)
+            openChatLog(contact)
         }
         recyclerView.adapter = contactAdapter
 
@@ -64,14 +64,12 @@ class AddActivity : AppCompatActivity() {
         editTextEmail.setText(userEmail)
         editTextNombre.setText(userName)
 
-
         btnAgregar.setOnClickListener {
             val email = editTextEmail.text.toString()
             val nombre = editTextNombre.text.toString()
 
             if (email.isNotEmpty() && nombre.isNotEmpty()) {
                 // Verificar si el correo está asociado a una cuenta en Firebase
-                //addContact(email, nombre)
                 addContact(userId, email, nombre)
             } else {
                 Toast.makeText(this@AddActivity, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
@@ -148,6 +146,7 @@ class AddActivity : AppCompatActivity() {
                     contactsRef.child(newContactId).setValue(contact)
                         .addOnSuccessListener {
                             Toast.makeText(this@AddActivity, "Contacto agregado exitosamente", Toast.LENGTH_SHORT).show()
+                            sendBroadcastForNewChat()  // Enviar el broadcast aquí
                             finish()
                         }
                         .addOnFailureListener {
@@ -164,14 +163,21 @@ class AddActivity : AppCompatActivity() {
         })
     }
 
-    private fun openChatLog(contactUserId: String) {
+    private fun sendBroadcastForNewChat() {
+        val intent = Intent("com.jose.appchat.NEW_CHAT_CREATED")
+        sendBroadcast(intent)
+    }
+
+    private fun openChatLog(contact: Contact) {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val chatId = if (currentUserId < contactUserId) "$currentUserId-$contactUserId" else "$contactUserId-$currentUserId"
+        val chatId = if (currentUserId < contact.userId) "$currentUserId-${contact.userId}" else "${contact.userId}-$currentUserId"
 
         val intent = Intent(this, ChatLogActivity::class.java).apply {
             putExtra("chatId", chatId)
-            putExtra("userIdReceiver", contactUserId)
+            putExtra("userIdReceiver", contact.userId)
             putExtra("userIdSender", currentUserId)
+            putExtra("userName", contact.nombre)  // Pasar el nombre del contacto
+            putExtra("userEmail", contact.email)  // Pasar el email del contacto
         }
         startActivity(intent)
     }
