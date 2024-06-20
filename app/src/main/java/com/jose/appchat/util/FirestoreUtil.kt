@@ -6,7 +6,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.jose.appchat.model.User
+import com.jose.appchat.model.UserChats
 
 object FirestoreUtil {
     private val firebaseDatabase: FirebaseDatabase by lazy { FirebaseDatabase.getInstance() }
@@ -16,7 +16,7 @@ object FirestoreUtil {
 
     fun initCurrentUserIfFirstTime(onComplete: () -> Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        val newUser = User(
+        val newUserChats = UserChats(
             name = currentUser?.displayName ?: "",
             bio = "",
             profilePicturePath = null,
@@ -27,7 +27,7 @@ object FirestoreUtil {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
-                    currentUserRef.setValue(newUser.toMap()).addOnSuccessListener {
+                    currentUserRef.setValue(newUserChats.toMap()).addOnSuccessListener {
                         onComplete()
                     }.addOnFailureListener {
                         // Manejar el fallo si es necesario
@@ -58,11 +58,11 @@ object FirestoreUtil {
         }
     }
 
-    fun getCurrentUser(onComplete: (User?) -> Unit) {
+    fun getCurrentUser(onComplete: (UserChats?) -> Unit) {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(User::class.java)
-                onComplete(user)
+                val userChats = snapshot.getValue(UserChats::class.java)
+                onComplete(userChats)
             }
 
             override fun onCancelled(error: DatabaseError) {

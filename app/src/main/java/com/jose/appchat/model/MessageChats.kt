@@ -1,6 +1,6 @@
 package com.jose.appchat.model
 
-data class Message(
+data class MessageChats(
     var messageId: String = "",   // ID único del mensaje
     val text: String = "",        // Contenido del mensaje
     val senderId: String = "",    // ID del remitente del mensaje

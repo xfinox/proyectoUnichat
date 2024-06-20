@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import com.jose.appchat.R
-import com.jose.appchat.model.Message
+import com.jose.appchat.model.MessageChats
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -22,7 +22,7 @@ class ChatMessageAdapter(
     private val userIdReceiver: String
 ) : RecyclerView.Adapter<ChatMessageAdapter.MessageViewHolder>() {
 
-    private val messagesList: MutableList<Message> = mutableListOf()
+    private val messagesList: MutableList<MessageChats> = mutableListOf()
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val messagesRef: DatabaseReference = database.child("Chats").child(chatId).child("messages")
 
@@ -49,18 +49,18 @@ class ChatMessageAdapter(
         private val messageTime: TextView = itemView.findViewById(R.id.messageTime)
         private val messageContainer: LinearLayout = itemView.findViewById(R.id.messageContainer)
 
-        fun bind(message: Message) {
-            messageText.text = message.text
+        fun bind(messageChats: MessageChats) {
+            messageText.text = messageChats.text
 
             // Formatear el tiempo
             val sdf = SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
-            val date = Date(message.time)
+            val date = Date(messageChats.time)
             val formattedTime = sdf.format(date)
 
             messageTime.text = formattedTime
 
             // Ajustar estilo según el remitente del mensaje
-            if (message.senderId == currentUserId) {
+            if (messageChats.senderId == currentUserId) {
                 messageText.setBackgroundResource(R.drawable.message_background_sender)
                 messageContainer.gravity = Gravity.END
             } else {
@@ -76,8 +76,8 @@ class ChatMessageAdapter(
             override fun onDataChange(snapshot: DataSnapshot) {
                 messagesList.clear()
                 for (postSnapshot in snapshot.children) {
-                    val message = postSnapshot.getValue(Message::class.java)
-                    message?.let {
+                    val messageChats = postSnapshot.getValue(MessageChats::class.java)
+                    messageChats?.let {
                         messagesList.add(it)
                     }
                 }
@@ -92,7 +92,7 @@ class ChatMessageAdapter(
 
     fun sendMessage(messageText: String) {
         val currentTime = System.currentTimeMillis()
-        val message = Message(
+        val messageChats = MessageChats(
             messageId = "", // Se generará después
             text = messageText,
             senderId = currentUserId,
@@ -105,10 +105,10 @@ class ChatMessageAdapter(
         val messageId = newMessageRef.key ?: return
 
         // Actualizar el ID del mensaje en el objeto Message
-        message.messageId = messageId
+        messageChats.messageId = messageId
 
         // Establecer el valor del mensaje en la referencia generada
-        newMessageRef.setValue(message)
+        newMessageRef.setValue(messageChats)
             .addOnSuccessListener {
                 // Aquí puedes realizar acciones adicionales después de enviar el mensaje, si es necesario
                 Log.d(TAG, "Mensaje enviado correctamente con messageId: $messageId")

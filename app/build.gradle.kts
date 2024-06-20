@@ -46,6 +46,11 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
+    implementation ("androidx.recyclerview:recyclerview:1.3.2")
+    implementation ("androidx.viewpager2:viewpager2:1.1.0")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+
+
     // Arquitectura de Jetpack
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
@@ -67,7 +72,7 @@ dependencies {
 
     // Picasso para imágenes
     implementation("com.squareup.picasso:picasso:2.71828")
-
+    implementation ("jp.wasabeef:picasso-transformations:2.4.0")
     // Firebase Cloud Messaging
     implementation("com.google.firebase:firebase-messaging:24.0.0")
 
@@ -80,8 +85,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
 
-
-    implementation ("androidx.viewpager2:viewpager2:1.1.0")
 
 
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/imageViewGroup"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/profile" />
+
+    <TextView
+        android:id="@+id/textViewGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewGroup"
+        android:layout_centerHorizontal="true"
+        android:text="Group Name"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:padding="4dp" />
+
+    <Button
+        android:id="@+id/buttonAddMembers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewGroupName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Agregar Miembros" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMembers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonAddMembers"
+        android:layout_marginTop="16dp" />
+</RelativeLayout>

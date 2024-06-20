@@ -4,7 +4,7 @@ import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
-data class User(
+data class UserChats(
     var name: String = "",
     var bio: String = "",
     var profilePicturePath: String? = null,
