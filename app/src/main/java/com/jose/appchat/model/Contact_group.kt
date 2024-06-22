@@ -5,6 +5,6 @@ data class Contact_group(
     val nombre: String = "",
     val email: String = "",
     val profilePicturePath: String = "",
-    val userId: String = ""
-
+    val userId: String = "",
+    var isSelected: Boolean = false // Añadir esta propiedad
 )

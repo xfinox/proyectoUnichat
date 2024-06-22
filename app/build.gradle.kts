@@ -75,11 +75,12 @@ dependencies {
     implementation ("jp.wasabeef:picasso-transformations:2.4.0")
     // Firebase Cloud Messaging
     implementation("com.google.firebase:firebase-messaging:24.0.0")
+    implementation("androidx.compose.ui:ui-test-android:1.6.8")
 
     // Pruebas y pruebas instrumentales
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    //androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // Imágenes con Glide
     implementation("com.github.bumptech.glide:glide:4.15.1")

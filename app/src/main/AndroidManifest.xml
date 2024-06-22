@@ -22,13 +22,10 @@
         android:theme="@style/Theme.AppChat"
         tools:targetApi="31">
         <activity
-            android:name=".ui.groups.AddMembersActivity"
+            android:name=".ui.groups.ChatsGroups.ChatsGroupActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.groups.DetailGroupActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.groups.GroupChatActivity"
+            android:name=".ui.groups.crear.CreateGroupActivity"
             android:exported="false" />
         <activity
             android:name=".ui.Chats.ChatLogActivity"
@@ -50,10 +47,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:label="@string/app_name" /> <!-- Agregar las nuevas actividades aquí -->
-        <activity
-            android:name=".ui.groups.CreateGroupActivity"
-            android:exported="true" />
+            android:label="@string/app_name" />
     </application>
 
 </manifest>
