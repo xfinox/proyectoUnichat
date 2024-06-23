@@ -21,6 +21,7 @@ class AddStatusActivity : AppCompatActivity() {
 
     private val RC_SELECT_IMAGE = 2
     private lateinit var selectedImageBytes: ByteArray
+    private var imageSelected = false
     private lateinit var imageViewSelected: ImageView
     private lateinit var buttonUpload: Button
 
@@ -41,10 +42,10 @@ class AddStatusActivity : AppCompatActivity() {
         }
 
         buttonUpload.setOnClickListener {
-            if (::selectedImageBytes.isInitialized) {
+            if (imageSelected) {
                 uploadImageToFirebase()
             } else {
-                Toast.makeText(this, "Por favor, seleccione una imagen", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor selecciona una imagen", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -60,6 +61,7 @@ class AddStatusActivity : AppCompatActivity() {
             selectedImageBytes = outputStream.toByteArray()
 
             imageViewSelected.setImageBitmap(selectedImageBmp)
+            imageSelected = true
         }
     }
 
@@ -70,6 +72,9 @@ class AddStatusActivity : AppCompatActivity() {
                 ref.downloadUrl.addOnSuccessListener { uri ->
                     saveStatusToDatabase(uri.toString())
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al subir la imagen", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -84,6 +89,9 @@ class AddStatusActivity : AppCompatActivity() {
         ref.setValue(status)
             .addOnSuccessListener {
                 finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al guardar el estado", Toast.LENGTH_SHORT).show()
             }
     }
 }

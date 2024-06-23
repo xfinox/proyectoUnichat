@@ -70,7 +70,7 @@ class AddActivity : AppCompatActivity() {
 
             if (email.isNotEmpty() && nombre.isNotEmpty()) {
                 // Verificar si el correo está asociado a una cuenta en Firebase
-                addContact(userId, email, nombre)
+                checkContactExists(userId, email, nombre)
             } else {
                 Toast.makeText(this@AddActivity, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             }
@@ -110,7 +110,25 @@ class AddActivity : AppCompatActivity() {
         })
     }
 
-    private fun addContact(userId:String, email: String, nombre: String) {
+    private fun checkContactExists(userId: String, email: String, nombre: String) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        contactsRef?.orderByChild("email")?.equalTo(email)?.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    Toast.makeText(this@AddActivity, "El contacto ya está en tu lista", Toast.LENGTH_SHORT).show()
+                } else {
+                    addContact(userId, email, nombre)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@AddActivity, "Error al verificar el contacto", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun addContact(userId: String, email: String, nombre: String) {
         // Obtener la referencia a la base de datos "users"
         val usersRef = database.child("users")
 

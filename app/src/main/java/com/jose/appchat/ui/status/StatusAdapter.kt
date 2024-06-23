@@ -12,7 +12,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.jose.appchat.R
 import com.jose.appchat.model.State
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 class StatusAdapter(
     private val statusList: List<State>,

@@ -50,9 +50,10 @@ class StatusFragment : Fragment() {
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(stateSnapshot: DataSnapshot) {
                     statusList.clear()
-                    var myState: State? = null
                     val currentTime = System.currentTimeMillis()
                     val twentyFourHoursInMillis = 24 * 60 * 60 * 1000
+                    val latestStateMap = mutableMapOf<String, State>()
+                    var myState: State? = null
 
                     stateSnapshot.children.forEach { userSnapshot ->
                         userSnapshot.children.forEach { stateSnapshot ->
@@ -61,17 +62,22 @@ class StatusFragment : Fragment() {
                             if (state != null && currentTime - state.timestamp <= twentyFourHoursInMillis) {
                                 if (state.userId == userId) {
                                     state.username = "Mi estado"
-                                    myState = state
+                                    if (myState == null || state.timestamp > myState!!.timestamp) {
+                                        myState = state
+                                    }
                                 } else if (contactIds.contains(state.userId)) {
                                     state.username = contactNames[state.userId] ?: "Desconocido"
-                                    statusList.add(state)
-                                    Log.d(TAG, "Added state to list: $state")
+                                    val latestState = latestStateMap[state.userId]
+                                    if (latestState == null || state.timestamp > latestState.timestamp) {
+                                        latestStateMap[state.userId] = state
+                                    }
                                 }
                             }
                         }
                     }
 
                     myState?.let { statusList.add(0, it) } // Agregar "Mi estado" al principio
+                    statusList.addAll(latestStateMap.values)
                     statusAdapter.notifyDataSetChanged()
                     Log.d(TAG, "Total states added: ${statusList.size}")
                 }
