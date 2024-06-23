@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,9 +21,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.jose.appchat.R
 import com.jose.appchat.SingninActivity
-import com.jose.appchat.glide.GlideApp
 import com.jose.appchat.util.FirestoreUtil
 import com.jose.appchat.util.StorageUtil
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import java.io.ByteArrayOutputStream
 
 class UserFragment : Fragment() {
@@ -31,10 +33,12 @@ class UserFragment : Fragment() {
     private lateinit var selectedImageBytes: ByteArray
     private var pictureJustChanged = false
 
-    private lateinit var editText_name: TextView
-    private lateinit var editText_bio: TextView
-    private lateinit var imageView_profile_picture: ImageView
-    private lateinit var btn_save: Button
+    private lateinit var editTextName: EditText
+    private lateinit var editTextBio: EditText
+    private lateinit var imageViewProfilePicture: ImageView
+    private lateinit var btnSave: Button
+    private var originalName: String = ""
+    private var originalBio: String = ""
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
     override fun onCreateView(
@@ -44,15 +48,15 @@ class UserFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_user, container, false)
 
-        editText_name = view.findViewById(R.id.editText_name)
-        editText_bio = view.findViewById(R.id.editText_bio)
-        imageView_profile_picture = view.findViewById(R.id.imageView_profile_picture)
-        btn_save = view.findViewById(R.id.btn_save)
+        editTextName = view.findViewById(R.id.editText_name)
+        editTextBio = view.findViewById(R.id.editText_bio)
+        imageViewProfilePicture = view.findViewById(R.id.imageView_profile_picture)
+        btnSave = view.findViewById(R.id.btn_save)
 
-        // Inicialmente deshabilitar el botón de guardar
-        btn_save.isEnabled = false
+        // Inicialmente ocultar el botón de guardar
+        btnSave.visibility = View.GONE
 
-        imageView_profile_picture.setOnClickListener {
+        imageViewProfilePicture.setOnClickListener {
             val intent = Intent().apply {
                 type = "image/*"
                 action = Intent.ACTION_GET_CONTENT
@@ -61,40 +65,38 @@ class UserFragment : Fragment() {
             startActivityForResult(Intent.createChooser(intent, "Select Image"), RC_SELECT_IMAGE)
         }
 
-        // Detectar cambios en nombre y bio
-        editText_name.addTextChangedListener { enableSaveButton() }
-        editText_bio.addTextChangedListener { enableSaveButton() }
-
-        btn_save.setOnClickListener {
-            btn_save.isEnabled = false // Deshabilitar el botón de guardar mientras se guarda
+        btnSave.setOnClickListener {
+            btnSave.isEnabled = false // Deshabilitar el botón de guardar mientras se guarda
             if (::selectedImageBytes.isInitialized) {
                 StorageUtil.uploadProfilePhoto(selectedImageBytes) { imagePath ->
                     FirestoreUtil.updateCurrentUser(
-                        editText_name.text.toString(),
-                        editText_bio.text.toString(),
+                        editTextName.text.toString(),
+                        editTextBio.text.toString(),
                         imagePath
                     ) {
                         // Mostrar mensaje de confirmación
                         Toast.makeText(requireContext(), "Se guardaron los cambios", Toast.LENGTH_SHORT).show()
                         pictureJustChanged = false
-                        btn_save.isEnabled = true // Rehabilitar el botón de guardar después de guardar los cambios
+                        btnSave.isEnabled = true // Rehabilitar el botón de guardar después de guardar los cambios
+                        btnSave.visibility = View.GONE // Ocultar el botón de guardar
                     }
                 }
             } else {
                 FirestoreUtil.updateCurrentUser(
-                    editText_name.text.toString(),
-                    editText_bio.text.toString(),
+                    editTextName.text.toString(),
+                    editTextBio.text.toString(),
                     null
                 ) {
                     // Mostrar mensaje de confirmación
                     Toast.makeText(requireContext(), "Se guardaron los cambios", Toast.LENGTH_SHORT).show()
-                    btn_save.isEnabled = true // Rehabilitar el botón de guardar después de guardar los cambios
+                    btnSave.isEnabled = true // Rehabilitar el botón de guardar después de guardar los cambios
+                    btnSave.visibility = View.GONE // Ocultar el botón de guardar
                 }
             }
         }
 
-        val btn_sign_out = view.findViewById<Button>(R.id.btn_sign_out)
-        btn_sign_out.setOnClickListener {
+        val btnSignOut = view.findViewById<Button>(R.id.btn_sign_out)
+        btnSignOut.setOnClickListener {
             val progressDialog = ProgressDialog(requireContext())
             progressDialog.setMessage("Signing out...")
             progressDialog.show()
@@ -127,8 +129,9 @@ class UserFragment : Fragment() {
             selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
             selectedImageBytes = outputStream.toByteArray()
 
-            GlideApp.with(this).load(selectedImageBytes)
-                .into(imageView_profile_picture)
+            Glide.with(this).load(selectedImageBytes)
+                .transform(CircleCrop())
+                .into(imageViewProfilePicture)
 
             pictureJustChanged = true
             enableSaveButton() // Habilitar el botón de guardar al cambiar la imagen
@@ -139,22 +142,38 @@ class UserFragment : Fragment() {
         super.onStart()
         FirestoreUtil.getCurrentUser { user ->
             if (isVisible) {
-                editText_name.setText(user?.name)
-                editText_bio.setText(user?.bio)
+                originalName = user?.name.orEmpty()
+                originalBio = user?.bio.orEmpty()
+
+                editTextName.setText(originalName)
+                editTextBio.setText(originalBio)
 
                 if (!pictureJustChanged && user?.profilePicturePath != null) {
-                    GlideApp.with(this)
+                    Glide.with(this)
                         .load(StorageUtil.pathToReference(user.profilePicturePath!!))
                         .placeholder(R.drawable.profile)
-                        .into(imageView_profile_picture)
+                        .transform(CircleCrop())
+                        .into(imageViewProfilePicture)
                 }
 
                 pictureJustChanged = false
+
+                // Detectar cambios en nombre y bio después de inicializar los valores originales
+                editTextName.addTextChangedListener { enableSaveButton() }
+                editTextBio.addTextChangedListener { enableSaveButton() }
             }
         }
     }
 
     private fun enableSaveButton() {
-        btn_save.isEnabled = true
+        val nameChanged = editTextName.text.toString() != originalName
+        val bioChanged = editTextBio.text.toString() != originalBio
+        val imageChanged = pictureJustChanged
+
+        if (nameChanged || bioChanged || imageChanged) {
+            btnSave.visibility = View.VISIBLE
+        } else {
+            btnSave.visibility = View.GONE
+        }
     }
 }

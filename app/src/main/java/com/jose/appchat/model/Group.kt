@@ -5,5 +5,5 @@ data class Group(
     val name: String = "",
     val photoUrl: String = "",
     val createdBy: String = "",
-    val members: List<String> = listOf()
+    var members: List<String> = listOf()
 )

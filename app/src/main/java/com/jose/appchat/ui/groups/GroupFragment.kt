@@ -30,6 +30,7 @@ class GroupFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var fab: FloatingActionButton
+    private lateinit var groupsListener: ValueEventListener
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,10 +60,15 @@ class GroupFragment : Fragment() {
         return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        database.getReference("groups").removeEventListener(groupsListener)
+    }
+
     private fun loadGroups() {
         val userId = auth.currentUser?.uid ?: return
 
-        database.getReference("groups").addValueEventListener(object : ValueEventListener {
+        groupsListener = object : ValueEventListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onDataChange(snapshot: DataSnapshot) {
                 groupList.clear()
@@ -70,7 +76,17 @@ class GroupFragment : Fragment() {
                     val group = dataSnapshot.getValue(Group::class.java)
                     group?.let {
                         it.id = dataSnapshot.key ?: ""
-                        if (it.createdBy == userId || it.members.contains(userId)) {
+
+                        // Extraer los miembros correctamente
+                        val members = mutableListOf<String>()
+                        dataSnapshot.child("members").children.forEach { memberSnapshot ->
+                            memberSnapshot.getValue(String::class.java)?.let { member ->
+                                members.add(member)
+                            }
+                        }
+
+                        if (members.contains(userId)) {
+                            it.members = members
                             groupList.add(it)
                         }
                     }
@@ -82,7 +98,9 @@ class GroupFragment : Fragment() {
             override fun onCancelled(error: DatabaseError) {
                 Log.e("GroupFragment", "Error loading groups", error.toException())
             }
-        })
+        }
+
+        database.getReference("groups").addValueEventListener(groupsListener)
     }
 
     private fun openGroupChat(group: Group) {

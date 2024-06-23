@@ -98,8 +98,6 @@ class ChatLogActivity : AppCompatActivity() {
         checkAndUpdateContactProfilePicture(userIdReceiver)
     }
 
-
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_chat_log, menu)
         return true
@@ -110,9 +108,6 @@ class ChatLogActivity : AppCompatActivity() {
             android.R.id.home -> {
                 navigateToChatsFragment()
                 true
-
-            //finish() // Finaliza la actividad actual y vuelve a la anterior
-                //true
             }
             R.id.action_add_contact -> {
                 openAddContactActivity(userIdReceiver, userNombre, userEmail)
@@ -121,6 +116,7 @@ class ChatLogActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun navigateToChatsFragment() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -136,7 +132,6 @@ class ChatLogActivity : AppCompatActivity() {
         }
         startActivity(intent)
     }
-
 
     private fun setupRecyclerView() {
         messageAdapter = ChatMessageAdapter(chatId, currentUserId, userIdReceiver)

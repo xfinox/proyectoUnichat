@@ -31,7 +31,8 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
         holder.bind(chatData)
 
         // Obtener datos del usuario usando participantId de chatData
-        val participantId = if (chatData.userId1 == FirebaseAuth.getInstance().currentUser?.uid) chatData.userId2 else chatData.userId1
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        val participantId = if (chatData.userId1 == currentUserId) chatData.userId2 else chatData.userId1
         Log.d(TAG, "ParticipantId: $participantId")
 
         // Verificar si el nombre del contacto ya está en la caché
@@ -43,8 +44,8 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
             holder.itemView.setOnClickListener {
                 val intent = Intent(holder.itemView.context, ChatLogActivity::class.java).apply {
                     putExtra("chatId", chatData.chatId)
-                    putExtra("userIdSender", chatData.userId1)
-                    putExtra("userIdReceiver", chatData.userId2)
+                    putExtra("userIdSender", currentUserId)
+                    putExtra("userIdReceiver", participantId)
                     putExtra("userName", cachedName ?: "Desconocido") // Pasar "Desconocido" si userName es null
                 }
                 holder.itemView.context.startActivity(intent)
@@ -59,8 +60,8 @@ class ChatsAdapter(private val chatDataList: List<ListaChatsAdapter.ChatData>) :
                 holder.itemView.setOnClickListener {
                     val intent = Intent(holder.itemView.context, ChatLogActivity::class.java).apply {
                         putExtra("chatId", chatData.chatId)
-                        putExtra("userIdSender", chatData.userId1)
-                        putExtra("userIdReceiver", chatData.userId2)
+                        putExtra("userIdSender", currentUserId)
+                        putExtra("userIdReceiver", participantId)
                         putExtra("userName", userName ?: "Desconocido") // Pasar "Desconocido" si userName es null
                     }
                     holder.itemView.context.startActivity(intent)

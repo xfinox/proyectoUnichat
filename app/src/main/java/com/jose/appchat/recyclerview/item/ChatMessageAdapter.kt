@@ -96,7 +96,7 @@ class ChatMessageAdapter(
             messageId = "", // Se generará después
             text = messageText,
             senderId = currentUserId,
-            receiverId = userIdReceiver, // Añadir el receiverId
+            receiverId = userIdReceiver, // Asegúrate de que esto esté correcto
             time = currentTime
         )
 
