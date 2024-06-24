@@ -22,6 +22,12 @@
         android:theme="@style/Theme.AppChat"
         tools:targetApi="31">
         <activity
+            android:name=".ui.groups.agregar.AgregarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.groups.Informacion.InfoGroupActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.status.DetailStatusActivity"
             android:exported="false" />
         <activity
@@ -29,7 +35,8 @@
             android:exported="false" />
         <activity
             android:name=".ui.groups.ChatsGroups.ChatsGroupActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.groups.crear.CreateGroupActivity"
             android:exported="false" />

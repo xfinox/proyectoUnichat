@@ -1,0 +1,68 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.groups.Informacion.InfoGroupActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageViewGroupPhoto"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/profile" />
+
+    <TextView
+        android:id="@+id/textViewGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewGroupPhoto"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/buttonEditGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewGroupName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Edit Group Name" />
+
+    <Button
+        android:id="@+id/buttonEditGroupPhoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonEditGroupName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Edit Group Photo" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewGroupMembers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/messageInputLayout"
+        android:layout_below="@id/buttonEditGroupPhoto"
+        android:padding="8dp"
+        tools:listitem="@layout/item_member" />
+
+    <LinearLayout
+        android:id="@+id/messageInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="8dp">
+    </LinearLayout>
+</RelativeLayout>

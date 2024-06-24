@@ -1,0 +1,38 @@
+<!-- item_add.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewContactName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@android:color/black"
+        android:gravity="start"
+        android:text="Contact Name" />
+
+    <TextView
+        android:id="@+id/textViewContactEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="start"
+        android:text="Contact Email" />
+
+    <Button
+        android:id="@+id/buttonAddToGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add"
+        android:textColor="@android:color/white"
+        android:background="@color/design_default_color_primary_dark"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+</LinearLayout>

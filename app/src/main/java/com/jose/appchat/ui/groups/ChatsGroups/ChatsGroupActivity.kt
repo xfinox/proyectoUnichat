@@ -1,20 +1,30 @@
 package com.jose.appchat.ui.groups.ChatsGroups
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.jose.appchat.R
 import com.jose.appchat.model.MessageGroup
 import com.jose.appchat.model.Contact_group
+import de.hdodenhof.circleimageview.CircleImageView
+import com.jose.appchat.ui.groups.Informacion.InfoGroupActivity
+import com.jose.appchat.ui.groups.agregar.AgregarActivity
 
 class ChatsGroupActivity : AppCompatActivity() {
 
@@ -43,6 +53,13 @@ class ChatsGroupActivity : AppCompatActivity() {
             return
         }
 
+        val toolbar: Toolbar = findViewById(R.id.toolbarGroupChat)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        val groupNameTextView: TextView = findViewById(R.id.textViewGroupName)
+        val groupPhotoImageView: CircleImageView = findViewById(R.id.imageViewGroupPhoto)
+
         recyclerView = findViewById(R.id.recyclerViewGroupMessages)
         recyclerView.layoutManager = LinearLayoutManager(this)
         messageAdapter = ChatsGroupAdapter(messageList, userId, contactsMap, userNamesMap, userPhotosMap)
@@ -59,9 +76,41 @@ class ChatsGroupActivity : AppCompatActivity() {
             }
         }
 
+        loadGroupDetails(groupNameTextView, groupPhotoImageView)
         loadContacts()
         loadGroupMembers()
         loadMessages()
+
+        setupKeyboardListener()
+    }
+
+    private fun setupKeyboardListener() {
+        val rootView = findViewById<RecyclerView>(R.id.recyclerViewGroupMessages)
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val heightDiff = rootView.rootView.height - rootView.height
+            if (heightDiff > 0.25 * rootView.rootView.height) {
+                rootView.scrollToPosition(messageList.size - 1)
+            }
+        }
+    }
+
+    private fun loadGroupDetails(groupNameTextView: TextView, groupPhotoImageView: CircleImageView) {
+        databaseReference.child("groups").child(groupId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val groupName = snapshot.child("name").getValue(String::class.java) ?: "Group Name"
+                    val profilePictureUrl = snapshot.child("photoUrl").getValue(String::class.java)
+                    groupNameTextView.text = groupName
+                    if (!profilePictureUrl.isNullOrEmpty()) {
+                        Glide.with(this@ChatsGroupActivity).load(profilePictureUrl).into(groupPhotoImageView)
+                        Log.d("ChatsGroupActivity", "Group Photo URL: $profilePictureUrl")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ChatsGroupActivity", "Failed to load group details: ${error.message}")
+                }
+            })
     }
 
     private fun sendMessage(text: String) {
@@ -114,12 +163,17 @@ class ChatsGroupActivity : AppCompatActivity() {
     private fun fetchUserDetails(userId: String) {
         databaseReference.child("users").child(userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    // Fetching the user's name from the database
                     val name = snapshot.child("nombre").getValue(String::class.java) ?: "Unknown"
+                    // Fetching the profile picture path from the database
                     val profilePicturePath = snapshot.child("profilePicturePath").getValue(String::class.java)
                     if (profilePicturePath != null && profilePicturePath.isNotEmpty()) {
+                        // Converting the profile picture path to a full URL using FirebaseStorage
                         FirebaseStorage.getInstance().reference.child(profilePicturePath).downloadUrl
                             .addOnSuccessListener { uri ->
+                                // Storing the user's name and photo URL in the maps
                                 userNamesMap[userId] = name
                                 userPhotosMap[userId] = uri.toString()
                                 messageAdapter.notifyDataSetChanged()
@@ -128,6 +182,7 @@ class ChatsGroupActivity : AppCompatActivity() {
                                 Log.e("ChatsGroupActivity", "Failed to get photo URL: ${it.message}")
                             }
                     } else {
+                        // If no profile picture is found, storing the user's name and an empty photo URL
                         userNamesMap[userId] = name
                         userPhotosMap[userId] = ""
                         messageAdapter.notifyDataSetChanged()
@@ -161,5 +216,30 @@ class ChatsGroupActivity : AppCompatActivity() {
                     Log.e("ChatsGroupActivity", "Failed to load messages: ${error.message}")
                 }
             })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_group_chat, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_info -> {
+                // Acción para "Información"
+                val intent = Intent(this, InfoGroupActivity::class.java)
+                intent.putExtra("groupId", groupId)
+                startActivity(intent)
+                true
+            }
+            R.id.action_add -> {
+                // Acción para "Agregar"
+                val intent = Intent(this, AgregarActivity::class.java)
+                intent.putExtra("groupId", groupId)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
