@@ -8,9 +8,10 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.jose.appchat.R
 import com.jose.appchat.model.Contact_group
-import com.squareup.picasso.Picasso
 
 class AdapterCreateGroup(
     private val contacts: List<Contact_group>,
@@ -31,7 +32,11 @@ class AdapterCreateGroup(
                 val baseUrl = "https://firebasestorage.googleapis.com/v0/b/unichatfb.appspot.com/o"
                 val profilePicturePath = contact.profilePicturePath.replace("/", "%2F")
                 val profilePictureUrl = "$baseUrl$profilePicturePath?alt=media"
-                Picasso.get().load(profilePictureUrl).placeholder(R.drawable.profile).into(profileImageView)
+                Glide.with(profileImageView.context)
+                    .load(profilePictureUrl)
+                    .transform(CircleCrop())
+                    .placeholder(R.drawable.profile)
+                    .into(profileImageView)
                 Log.d("ContactSelection1", "Selected: ${contact.nombre}, Foto URL: $profilePictureUrl")
             } else {
                 profileImageView.setImageResource(R.drawable.profile)
